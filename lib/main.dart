@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:atom/question_daata.dart';
+import 'package:atom/widgets/answer_button.dart';
 import 'package:atom/widgets/result_page.dart';
 import 'package:flutter/material.dart';
 
@@ -110,11 +111,22 @@ class _MyHomePageState extends State<MyHomePage> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 30),
+            //AnswerButton(),
+            SizedBox(height: 30),
 
-            Row(
+
+            Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(5, (index) {
                 final score = index + 1;
+                return InkWell(
+                  onTap: () {
+                    _answerQuestion(score);
+                  },
+                  child:  AnswerButton(text: score.toString(),
+                  color:_answers[_currentQuestionIndex] == score ? Colors.blue : Colors.grey[300]! ,),
+                );
+
                 return ElevatedButton(
                   onPressed: () => _answerQuestion(score),
                   style: ElevatedButton.styleFrom(
@@ -126,18 +138,22 @@ class _MyHomePageState extends State<MyHomePage> {
               }),
             ),
             SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: _currentQuestionIndex > 0 ? _previousQuestion : null,
-                  child: Text('قبلی'),
-                ),
-                ElevatedButton(
-                  onPressed: _answers[_currentQuestionIndex] != null ? _nextQuestion : null,
-                  child: Text(_currentQuestionIndex < _totalQuestions - 1 ? 'بعدی' : 'مشاهده نتایج'),
-                ),
-              ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: _currentQuestionIndex > 0 ? _previousQuestion : null,
+                    child: Text('قبلی'),
+                  ),
+
+                  ElevatedButton(
+                    onPressed: _answers[_currentQuestionIndex] != null ? _nextQuestion : null,
+                    child: Text(_currentQuestionIndex < _totalQuestions - 1 ? 'بعدی' : 'مشاهده نتایج'),
+                  ),
+                ],
+              ),
             ),
 
           ],

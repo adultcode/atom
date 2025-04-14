@@ -45,10 +45,14 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _questions = json.decode(jsonData) as Map<String, List<String>>;
-    _questions.forEach((category, questions) {
-      for (var question in questions) {
-        _allQuestionsWithAnswers.add(QuestionWithAnswer(category: category, question: question));
+    final decodedJson = json.decode(jsonData) as Map<String, dynamic>;
+    decodedJson.forEach((category, questions) {
+      if (questions is List) {
+        for (var question in questions) {
+          if (question is String) {
+            _allQuestionsWithAnswers.add(QuestionWithAnswer(category: category, question: question));
+          }
+        }
       }
     });
     _totalQuestions = _allQuestionsWithAnswers.length;

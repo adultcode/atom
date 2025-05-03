@@ -9,22 +9,22 @@ class AnswerButton extends StatelessWidget {
 
     switch(int.parse(text)){
       case 1:
-        _title = "عالی";
+        _title = "خیلی کم";
         break;
       case 2:
-        _title = "خیلی خوب";
+        _title = "کم";
 
         break;
       case 3:
-        _title = "خوب";
-
-        break;
-      case 4:
         _title = "متوسط";
 
         break;
+      case 4:
+        _title = "زیاد";
+
+        break;
       case 5:
-        _title = "ضعیف";
+        _title = "خیلی زیاد";
 
         break;
     }
@@ -36,6 +36,8 @@ class AnswerButton extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 25,vertical: 14),
       margin: EdgeInsets.all(5),
+      alignment: Alignment.center,
+      width: MediaQuery.of(context).size.width*0.4,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(20)),
          color: color,

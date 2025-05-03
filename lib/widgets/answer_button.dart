@@ -3,8 +3,34 @@ import 'package:flutter/material.dart';
 class AnswerButton extends StatelessWidget {
 
   String text;
-  AnswerButton({required this.text,required this.color});
+ late String _title;
   Color color;
+  AnswerButton({required this.text,required this.color}){
+
+    switch(int.parse(text)){
+      case 1:
+        _title = "عالی";
+        break;
+      case 2:
+        _title = "خیلی خوب";
+
+        break;
+      case 3:
+        _title = "خوب";
+
+        break;
+      case 4:
+        _title = "متوسط";
+
+        break;
+      case 5:
+        _title = "ضعیف";
+
+        break;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,7 +47,7 @@ class AnswerButton extends StatelessWidget {
           ]
          // color: Colors.blue.withValues(alpha: 0.4)
       ),
-      child: Text("$text",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
+      child: Text("$_title",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16),),
     );
   }
 }

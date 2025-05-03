@@ -35,7 +35,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  late Map<String, List<String>> _questions;
   List<QuestionWithAnswer> _allQuestionsWithAnswers = [];
   int _currentQuestionIndex = 0;
   int _totalQuestions = 0;
@@ -122,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 return InkWell(
                   onTap: () {
                     _answerQuestion(score);
+                    _nextQuestion();
                   },
                   child:  AnswerButton(text: score.toString(),
                   color:_answers[_currentQuestionIndex] == score ? Colors.blue : Colors.grey[300]! ,),

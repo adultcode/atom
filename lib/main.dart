@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:atom/question_daata.dart';
+import 'package:atom/question_result.dart';
 import 'package:atom/widgets/answer_button.dart';
 import 'package:atom/widgets/result_page.dart';
 import 'package:flutter/material.dart';
 
+import 'model/question.dart';
 import 'model/question_answer_model.dart';
 
 void main() {
@@ -35,128 +37,165 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  List<QuestionWithAnswer> _allQuestionsWithAnswers = [];
-  int _currentQuestionIndex = 0;
-  int _totalQuestions = 0;
-  List<int?> _answers = [];
-
+  late QuizData _quizData;
 
 
   @override
   void initState() {
     super.initState();
-    final decodedJson = json.decode(jsonData) as Map<String, dynamic>;
-    decodedJson.forEach((category, questions) {
-      if (questions is List) {
-        for (var question in questions) {
-          if (question is String) {
-            _allQuestionsWithAnswers.add(QuestionWithAnswer(category: category, question: question));
-          }
-        }
-      }
-    });
-    _totalQuestions = _allQuestionsWithAnswers.length;
-    _answers = List.filled(_totalQuestions, null);
+    _quizData = QuizData.fromJson(jsonData);
   }
 
   void _answerQuestion(int score) {
     setState(() {
-      _answers[_currentQuestionIndex] = score;
+      _quizData.answerCurrentQuestion(score);
+    });
+
+    // Automatically move to next question or show results
+    Future.delayed(Duration(milliseconds: 300), () {
+      if (_quizData.canGoNext) {
+        setState(() {
+          _quizData.nextQuestion();
+        });
+      } else {
+        // Show results
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResultsScreen(quizData: _quizData),
+          ),
+        );
+      }
     });
   }
 
-  void _nextQuestion() {
-    if (_currentQuestionIndex < _totalQuestions - 1) {
-      setState(() {
-        _currentQuestionIndex++;
-      });
-    } else {
-      // Show results
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ResultsScreen(answers: _answers, questionsWithAnswers: _allQuestionsWithAnswers),
-        ),
-      );
-    }
-  }
-
   void _previousQuestion() {
-    if (_currentQuestionIndex > 0) {
-      setState(() {
-        _currentQuestionIndex--;
-      });
-    }
+    setState(() {
+      _quizData.previousQuestion();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentQuestionData = _allQuestionsWithAnswers[_currentQuestionIndex];
-
+    final currentQuestion = _quizData.currentQuestion;
+    final currentCategory = _quizData.currentCategory;
     return Scaffold(
+      appBar: AppBar(
+        title: Text('پرسشنامه'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Progress indicator
+              LinearProgressIndicator(
+                value: _quizData.progressPercentage,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              ),
+              SizedBox(height: 10),
 
-            Text(
-              '${_currentQuestionIndex + 1}/${_totalQuestions}',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 20),
-            Text(
-              currentQuestionData.question,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 30),
-            //AnswerButton(),
-            SizedBox(height: 30),
+              // Question counter and category
+              Text(
+                '${_quizData.currentQuestionIndex + 1}/${_quizData.totalQuestions}',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                'دسته‌بندی: ${_quizData.currentCategory.name}',
+                style: TextStyle(fontSize: 14, color: Colors.blue, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 30),
 
-
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(5, (index) {
-                final score = index + 1;
-                return InkWell(
-                  onTap: () {
-                    _answerQuestion(score);
-                    _nextQuestion();
-                  },
-                  child:  AnswerButton(text: score.toString(),
-                  color:_answers[_currentQuestionIndex] == score ? Colors.blue : Colors.grey[300]! ,),
-                );
-
-                return ElevatedButton(
-                  onPressed: () => _answerQuestion(score),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _answers[_currentQuestionIndex] == score ? Colors.blue : Colors.grey[300],
-                    foregroundColor: _answers[_currentQuestionIndex] == score ? Colors.white : Colors.black,
+              // Question text
+              Expanded(
+                flex: 2,
+                child: Center(
+                  child: Text(
+                    _quizData.currentQuestion.text,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
-                  child: Text('$score'),
-                );
-              }),
-            ),
-            SizedBox(height: 40),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
+                ),
+              ),
+
+              // Answer options
+              Expanded(
+                flex: 3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'امتیاز خود را انتخاب کنید:',
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(5, (index) {
+                        final score = index + 1;
+                        final isSelected = currentQuestion.answer == score;
+
+                        return GestureDetector(
+                          onTap: () => _answerQuestion(score),
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: isSelected ? Colors.blue : Colors.grey[300],
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                color: isSelected ? Colors.blue : Colors.grey[400]!,
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$score',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('کم', style: TextStyle(color: Colors.grey)),
+                        Text('زیاد', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Navigation buttons (only previous button)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
                   ElevatedButton(
-                    onPressed: _currentQuestionIndex > 0 ? _previousQuestion : null,
+                    onPressed: _quizData.canGoPrevious ? _previousQuestion : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                    ),
                     child: Text('قبلی'),
-                  ),
-
-                  ElevatedButton(
-                    onPressed: _answers[_currentQuestionIndex] != null ? _nextQuestion : null,
-                    child: Text(_currentQuestionIndex < _totalQuestions - 1 ? 'بعدی' : 'مشاهده نتایج'),
                   ),
                 ],
               ),
-            ),
-
-          ],
+            ],
+          ),
         ),
       ),
     );

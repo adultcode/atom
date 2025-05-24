@@ -9,7 +9,14 @@ import 'package:flutter/material.dart';
 import 'model/question.dart';
 import 'model/question_answer_model.dart';
 
+var _temoTestCase = "";
+
+
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  print("Hello world");
+  WidgetsFlutterBinding.ensureInitialized()
+
   runApp(const MyApp());
 }
 
@@ -149,10 +156,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             decoration: BoxDecoration(
                               color: isSelected ? Colors.blue : Colors.grey[300],
                               borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                color: isSelected ? Colors.blue : Colors.grey[400]!,
-                                width: 2,
-                              ),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.3),
+                                      blurRadius: 2
+                                  )
+                                ]
                             ),
                             child: Center(
                               child: Text(
@@ -169,13 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       }),
                     ),
                     SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('کم', style: TextStyle(color: Colors.grey)),
-                        Text('زیاد', style: TextStyle(color: Colors.grey)),
-                      ],
-                    ),
+
                   ],
                 ),
               ),

@@ -1,3 +1,4 @@
+import 'package:atom/question_daata.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -137,12 +138,12 @@ class ResultsScreen extends StatelessWidget {
           children: [
             // Chart Section
 
-            SizedBox(height: 10,),
-            Text(
-                'نتیجه: ${_finalResult(_totalAnswer)}',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                textDirection: TextDirection.rtl
-            ),
+            // SizedBox(height: 10,),
+            // Text(
+            //     'نتیجه: ${_finalResult(_totalAnswer)}',
+            //     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            //     textDirection: TextDirection.rtl
+            // ),
             SizedBox(height: 10,),
             // Bar Chart Section
             Card(
@@ -236,80 +237,169 @@ class ResultsScreen extends StatelessWidget {
             SizedBox(height: 20),
 
             // Detailed Results
-            ...quizData.categories.map((category) {
-              return Card(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
 
-                    children: [
-                      Text(
-                        category.name,
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontSize: 18,
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: quizData.categories.length,
+              itemBuilder: (context, index) {
 
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'میانگین امتیاز: ${category.averageScore.toStringAsFixed(1)}/5',
-                        style: TextStyle(fontSize: 16),textDirection: TextDirection.rtl
-                      ),
-                      SizedBox(height: 10),
-                      LinearProgressIndicator(
-                        value: category.averageScore / 5,
-                        backgroundColor: Colors.grey[300],
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            category.averageScore >= 4 ? Colors.green :
-                            category.averageScore >= 3 ? Colors.orange : Colors.red
-                        ),
-                      ),
-                      SizedBox(height: 15),
-                      ...category.questions.asMap().entries.map((entry) {
-                        int questionIndex = entry.key;
-                        Question question = entry.value;
+                return Card(
+                  margin: EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
 
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                      children: [
+                        Text(
+                          quizData.categories[index].name,
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 18,
 
-                              Container(
-                                margin: EdgeInsets.only(right: 10),
-                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${question.answer}/5',
-                        textDirection: TextDirection.rtl,
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-
-                                  '${questionIndex + 1}. ${question.text}',
-                                  textDirection: TextDirection.rtl,
-                                  style: TextStyle(fontSize: 14),
-                                ),
-                              ),
-                            ],
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
                           ),
-                        );
-                      }).toList(),
-                    ],
+                        ),
+
+                        SizedBox(height: 10),
+                        Text(
+                            'میانگین امتیاز: ${quizData.categories[index].averageScore.toStringAsFixed(1)}/5',
+                            style: TextStyle(fontSize: 16),textDirection: TextDirection.rtl
+                        ),
+                        SizedBox(height: 10),
+                        LinearProgressIndicator(
+                          value: quizData.categories[index].averageScore / 5,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              quizData.categories[index].averageScore >= 4 ? Colors.green :
+                              quizData.categories[index].averageScore >= 3 ? Colors.orange : Colors.red
+                          ),
+                        ),
+                        SizedBox(height: 15),
+                        ...quizData.categories[index].questions.asMap().entries.map((entry) {
+                          int questionIndex = entry.key;
+                          Question question = entry.value;
+
+
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
+                                Container(
+                                  margin: EdgeInsets.only(right: 10),
+                                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${question.answer}/5',
+                                    textDirection: TextDirection.rtl,
+                                    style: TextStyle(color: Colors.white, fontSize: 12),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+
+                                    '${questionIndex + 1}. ${question.text}',
+                                    textDirection: TextDirection.rtl,
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+
+                        SizedBox(height: 10),
+                        if(quizData.categories[index].averageScore<=4.0)
+                        Text(recommDescription[index],textDirection: TextDirection.rtl,),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              },
+            ),
+            // ...quizData.categories.map((category) {
+            //
+            //   return Card(
+            //     margin: EdgeInsets.only(bottom: 16),
+            //     child: Padding(
+            //       padding: EdgeInsets.all(16),
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.end,
+            //
+            //         children: [
+            //           Text(
+            //             category.name,
+            //             textDirection: TextDirection.rtl,
+            //             style: TextStyle(
+            //               fontSize: 18,
+            //
+            //               fontWeight: FontWeight.bold,
+            //               color: Colors.blue,
+            //             ),
+            //           ),
+            //           SizedBox(height: 10),
+            //           Text(
+            //             'میانگین امتیاز: ${category.averageScore.toStringAsFixed(1)}/5',
+            //             style: TextStyle(fontSize: 16),textDirection: TextDirection.rtl
+            //           ),
+            //           SizedBox(height: 10),
+            //           LinearProgressIndicator(
+            //             value: category.averageScore / 5,
+            //             backgroundColor: Colors.grey[300],
+            //             valueColor: AlwaysStoppedAnimation<Color>(
+            //                 category.averageScore >= 4 ? Colors.green :
+            //                 category.averageScore >= 3 ? Colors.orange : Colors.red
+            //             ),
+            //           ),
+            //           SizedBox(height: 15),
+            //           ...category.questions.asMap().entries.map((entry) {
+            //             int questionIndex = entry.key;
+            //             Question question = entry.value;
+            //
+            //
+            //             return Padding(
+            //               padding: EdgeInsets.only(bottom: 8),
+            //               child: Row(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //
+            //                   Container(
+            //                     margin: EdgeInsets.only(right: 10),
+            //                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            //                     decoration: BoxDecoration(
+            //                       color: Colors.blue,
+            //                       borderRadius: BorderRadius.circular(12),
+            //                     ),
+            //                     child: Text(
+            //                       '${question.answer}/5',
+            //             textDirection: TextDirection.rtl,
+            //                       style: TextStyle(color: Colors.white, fontSize: 12),
+            //                     ),
+            //                   ),
+            //                   Expanded(
+            //                     child: Text(
+            //
+            //                       '${questionIndex + 1}. ${question.text}',
+            //                       textDirection: TextDirection.rtl,
+            //                       style: TextStyle(fontSize: 14),
+            //                     ),
+            //                   ),
+            //                 ],
+            //               ),
+            //             );
+            //           }).toList(),
+            //         ],
+            //       ),
+            //     ),
+            //   );
+            // }).toList(),
           ],
         ),
       ),

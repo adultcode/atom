@@ -14,8 +14,6 @@ var _temoTestCase = "";
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  print("Hello world");
-  WidgetsFlutterBinding.ensureInitialized()
 
   runApp(const MyApp());
 }

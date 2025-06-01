@@ -47,6 +47,7 @@ class QuizData {
   factory QuizData.fromJson(String jsonString) {
     final Map<String, dynamic> decodedJson = json.decode(jsonString);
 
+
     List<Category> categoryList = [];
 
     decodedJson.forEach((categoryName, questions) {
